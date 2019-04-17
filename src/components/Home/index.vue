@@ -52,8 +52,8 @@
             </v-layout>
             <v-layout>
               <v-flex xs12 v-if="editing">
-                <v-btn color="warnning" block @click="toCancel">Cancel</v-btn>
-                <v-btn color="success" block @click="toUpdate">Save</v-btn>
+                <v-btn color="warnning" block @click.prevent="toCancel">Cancel</v-btn>
+                <v-btn color="success" block @click.prevent="toUpdate">Save</v-btn>
               </v-flex>
               <v-flex v-else>
                 <v-btn color="success" block type="submit">Add</v-btn>
