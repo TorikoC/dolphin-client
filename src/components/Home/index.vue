@@ -1,69 +1,111 @@
 <template>
-  <div>
-    <v-toolbar app>
-      <v-toolbar-title class="headline text-uppercase">Dolphin</v-toolbar-title>
+  <v-app>
+    <v-navigation-drawer v-model="drawer" fixed clipped class="grey lighten-4" app>
+      <v-btn @click="toCreateNode('')">Add Deck</v-btn>
+      <v-treeview
+        activatable
+        transition
+        :active.sync="active"
+        hoverable
+        open-on-click
+        :items="decks"
+      >
+        <template v-slot:label="{ item }">
+          <v-layout class="tree-node">
+            <span>{{ item.name }}</span>
+            <v-spacer></v-spacer>
+            <v-layout float>
+              <v-icon class="tree-node__icon" @click="toEditNode(item, $event)">edit</v-icon>
+              <v-icon class="tree-node__icon" @click="toDeleteNode(item)">delete</v-icon>
+              <v-icon class="tree-node__icon" @click="toCreateNode(item)">add</v-icon>
+            </v-layout>
+          </v-layout>
+        </template>
+      </v-treeview>
+    </v-navigation-drawer>
+    <v-toolbar absolute app clipped-left>
+      <v-toolbar-side-icon @click="drawer = !drawer"></v-toolbar-side-icon>
+      <span class="title ml-3 mr-5">
+        DolphinApp&nbsp;
+        <span class="font-weight-light">Web</span>
+      </span>
+      <v-text-field solo-inverted flat hide-details label="Search" prepend-inner-icon="search"></v-text-field>
       <v-spacer></v-spacer>
-      <v-text-field sm3 append-icon="search" clearable :clear-icon="$vuetify.icons.clear"></v-text-field>
     </v-toolbar>
-    <v-container grid-list-lg>
-      <v-layout row>
-        <v-spacer></v-spacer>
-        <v-btn dark color="red" @click="toDeleteAll">delete all</v-btn>
-        <v-btn dark color="primary" @click="toReview">Review</v-btn>
-      </v-layout>
-      <v-layout row wrap>
-        <card @del="toDel(c)" @edit="toEdit(c, i)" v-for="(c,i) in cards" :card="c" :key="c.id"/>
-      </v-layout>
-    </v-container>
-    <v-expansion-panel class="expansion-panel" expand v-model="expand">
-      <v-expansion-panel-content>
-        <template v-slot:actions>
-          <v-icon>menu</v-icon>
-        </template>
-        <template v-slot:header>
-          <div class="expansion-panel__header"></div>
-        </template>
-        <v-form class="card-form" @submit.prevent="toAdd">
-          <v-container dark>
-            <v-layout>
-              <v-flex xs12 sm6>
-                <v-textarea
-                  ref="front"
-                  name="front"
-                  label="front"
-                  v-model="selectedCard.front"
-                  outline
-                  append-outer-icon
-                  box
-                  required
-                ></v-textarea>
-              </v-flex>
-              <v-flex xs12 sm6>
-                <v-textarea
-                  ref="back"
-                  name="back"
-                  v-model="selectedCard.back"
-                  label="back"
-                  outline
-                  box
-                  required
-                ></v-textarea>
-              </v-flex>
-            </v-layout>
-            <v-layout>
-              <v-flex xs12 v-if="editing">
-                <v-btn color="warnning" block @click.prevent="toCancel">Cancel</v-btn>
-                <v-btn color="success" block @click.prevent="toUpdate">Save</v-btn>
-              </v-flex>
-              <v-flex v-else>
-                <v-btn color="success" block type="submit">Add</v-btn>
-              </v-flex>
-            </v-layout>
-          </v-container>
-        </v-form>
-      </v-expansion-panel-content>
-    </v-expansion-panel>
+
+    <v-content>
+      <v-container fluid grid-list-lg>
+        <v-layout row>
+          <v-spacer></v-spacer>
+          <v-btn dark color="red" @click="toDeleteAll">delete all</v-btn>
+          <v-btn dark color="primary" @click="toReview">Review</v-btn>
+        </v-layout>
+        <v-layout row wrap>
+          <card @del="toDel(c)" @edit="toEdit(c, i)" v-for="(c,i) in cards" :card="c" :key="c.id"/>
+        </v-layout>
+      </v-container>
+      <v-expansion-panel fluid class="expansion-panel" expand v-model="expand">
+        <v-expansion-panel-content>
+          <template v-slot:actions>
+            <v-icon>menu</v-icon>
+          </template>
+          <template v-slot:header>
+            <div class="expansion-panel__header"></div>
+          </template>
+          <v-form class="card-form" @submit.prevent="toAdd">
+            <v-container dark>
+              <v-layout>
+                <v-flex xs12 sm6>
+                  <v-textarea
+                    ref="front"
+                    name="front"
+                    label="front"
+                    v-model="selectedCard.front"
+                    outline
+                    append-outer-icon
+                    box
+                    required
+                  ></v-textarea>
+                </v-flex>
+                <v-flex xs12 sm6>
+                  <v-textarea
+                    ref="back"
+                    name="back"
+                    v-model="selectedCard.back"
+                    label="back"
+                    outline
+                    box
+                    required
+                  ></v-textarea>
+                </v-flex>
+              </v-layout>
+              <v-layout>
+                <v-flex xs12 v-if="editing">
+                  <v-btn color="warnning" block @click.prevent="toCancel">Cancel</v-btn>
+                  <v-btn color="success" block @click.prevent="toUpdate">Save</v-btn>
+                </v-flex>
+                <v-flex v-else>
+                  <v-btn color="success" block type="submit">Add</v-btn>
+                </v-flex>
+              </v-layout>
+            </v-container>
+          </v-form>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+    </v-content>
+
     <v-snackbar :top="true" :timeout="3000" v-model="snackbar.show">{{ snackbar.msg }}</v-snackbar>
+    <v-dialog v-model="addDeck.dialog" width="300">
+      <v-card class="pa-3">
+        <v-card-title>添加牌组</v-card-title>
+        <v-text-field v-model="addDeck.name"></v-text-field>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn dark @click="addDeck.dialog = false">Cancel</v-btn>
+          <v-btn dark @click="toAddDeck">Confirm</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <v-dialog v-model="deleteAllDialog" width="300">
       <v-card>
         <v-card-title>确定删除所有卡片吗？</v-card-title>
@@ -74,7 +116,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-  </div>
+  </v-app>
 </template>
 
 <script>
@@ -91,6 +133,36 @@ export default {
         show: false,
         msg: "没有卡片可以复习"
       },
+      addDeck: {
+        dialog: false,
+        name: ""
+      },
+      nodes: [],
+      active: [],
+      deck: [],
+      decks: [
+        {
+          id: "1",
+          name: "javascript",
+          children: [
+            {
+              id: "2",
+              name: "performance"
+            }
+          ]
+        },
+        {
+          id: "3",
+          name: "japanese",
+          children: [
+            {
+              id: "4",
+              name: "grammer"
+            }
+          ]
+        }
+      ],
+      drawer: false,
       expand: [false],
       cards: [],
       selectedCard: {
@@ -99,21 +171,41 @@ export default {
       },
       currentIndex: -1,
       editing: false,
-      deleteAllDialog: false
+      deleteAllDialog: false,
+      activeNode: ""
     };
   },
   beforeMount() {
-    api
-      .getCards()
-      .then(resp => {
-        console.log(resp);
-        this.cards = resp.data;
-      })
-      .catch(err => {
-        console.log(err);
-      });
+    api.getDecks().then(resp => {
+      this.decks = resp.data;
+    });
   },
   methods: {
+    toAddDeck() {
+      let data = {
+        name: this.addDeck.name
+      };
+      let parent;
+      if (this.activeNode) {
+        parent = this.activeNode;
+        data.parent = this.activeNode._id;
+      }
+      api
+        .createDeck(data)
+        .then(resp => {
+          if (parent) {
+            parent.children.push(resp.data);
+          } else {
+            this.decks.push(resp.data);
+          }
+          this.addDeck.dialog = false;
+          this.addDeck.name = "";
+          this.activeNode = "";
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
     toEdit(card, index) {
       this.currentIndex = index;
       this.selectedCard = Object.assign({}, card);
@@ -179,6 +271,17 @@ export default {
         this.cards = [];
         this.deleteAllDialog = false;
       });
+    },
+    toEditNode(item, event) {
+      event.preventDefault();
+      event.stopPropagation();
+    },
+    toDeleteNode(item) {},
+    toCreateNode(item) {
+      if (item) {
+        this.activeNode = item;
+      }
+      this.addDeck.dialog = true;
     }
   }
 };
@@ -189,11 +292,19 @@ export default {
   width: 20rem;
   flex-grow: 0;
 }
+
+.tree-node .tree-node__icon {
+  display: none;
+}
+
+.tree-node:hover .tree-node__icon {
+  display: initial;
+}
 </style>
 
 <style>
 #app {
-  font-family: "Microsoft Yahei", "Roboto", sans-serif;
+  font-family: "Roboto", "Microsoft Yahei", sans-serif;
 }
 .expansion-panel {
   position: fixed;
