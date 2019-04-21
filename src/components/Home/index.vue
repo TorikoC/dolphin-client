@@ -11,7 +11,12 @@
         :items="decks"
       >
         <template v-slot:label="{ item }">
-          <v-layout class="tree-node">
+          <v-layout column v-if="editDeck.deck._id === item._id">
+            <v-text-field v-model="editDeck.name"></v-text-field>
+            <v-btn small @click="editDeck.deck = ''">Cancel</v-btn>
+            <v-btn small @click="toUpdateNode">Save</v-btn>
+          </v-layout>
+          <v-layout class="tree-node" v-else>
             <span>{{ item.name }}</span>
             <v-spacer></v-spacer>
             <v-layout float>
@@ -137,6 +142,10 @@ export default {
         dialog: false,
         name: ""
       },
+      editDeck: {
+        name: "",
+        deck: ""
+      },
       nodes: [],
       active: [],
       deck: [],
@@ -162,7 +171,7 @@ export default {
           ]
         }
       ],
-      drawer: false,
+      drawer: true,
       expand: [false],
       cards: [],
       selectedCard: {
@@ -275,8 +284,45 @@ export default {
     toEditNode(item, event) {
       event.preventDefault();
       event.stopPropagation();
+      this.editDeck.deck = item;
+      this.editDeck.name = item.name;
     },
-    toDeleteNode(item) {},
+    toUpdateNode() {
+      let data = {
+        name: this.editDeck.name
+      };
+      let id = this.editDeck.deck._id;
+      api.updateDeck(id, data).then(resp => {
+        this.editDeck.deck.name = this.editDeck.name;
+        this.editDeck.deck = "";
+      });
+    },
+    toDeleteNode(item) {
+      function findParent(decks, id) {
+        for (let d of decks) {
+          if (d.children && d.children.findIndex(c => c._id === id) !== -1) {
+            return d;
+          } else {
+            if (d.children) {
+              return findParent(d.children, id);
+            }
+          }
+        }
+      }
+      let parent = findParent(this.decks, item._id);
+      api.deleteDeck(item._id).then(resp => {
+        if (parent) {
+          let idx = parent.children.findIndex(d => d._id === item._id);
+          parent.children.splice(idx, 1);
+          if (parent.children.length === 0) {
+            delete parent.children;
+          }
+        } else {
+          let idx = this.decks.findIndex(d => d._id === item._id);
+          this.decks.splice(idx, 1);
+        }
+      });
+    },
     toCreateNode(item) {
       if (item) {
         this.activeNode = item;

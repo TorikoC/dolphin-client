@@ -39,6 +39,12 @@ function getDecks() {
 function createDeck(data) {
   return axios.post('/decks', data);
 }
+function updateDeck(id, data) {
+  return axios.put('/decks/' + id, data);
+}
+function deleteDeck(id) {
+  return axios.delete('/decks/' + id);
+}
 
 export default {
   getCards,
@@ -50,4 +56,6 @@ export default {
 
   getDecks,
   createDeck,
+  updateDeck,
+  deleteDeck,
 };
