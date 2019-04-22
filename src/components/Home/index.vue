@@ -6,8 +6,8 @@
         activatable
         transition
         :active.sync="active"
-        hoverable
         open-on-click
+        hoverable
         :items="decks"
       >
         <template v-slot:label="{ item }">
@@ -17,8 +17,7 @@
             <v-btn small @click="toUpdateNode">Save</v-btn>
           </v-layout>
           <v-layout class="tree-node" v-else>
-            <span>{{ item.name }}</span>
-            <v-spacer></v-spacer>
+            <v-flex @click="toDeck(item)">{{ item.name }}</v-flex>
             <v-layout float>
               <v-icon class="tree-node__icon" @click="toEditNode(item, $event)">edit</v-icon>
               <v-icon class="tree-node__icon" @click="toDeleteNode(item)">delete</v-icon>
@@ -181,7 +180,8 @@ export default {
       currentIndex: -1,
       editing: false,
       deleteAllDialog: false,
-      activeNode: ""
+      activeNode: "",
+      currentDeck: ""
     };
   },
   beforeMount() {
@@ -190,6 +190,13 @@ export default {
     });
   },
   methods: {
+    toDeck(item) {
+      this.currentDeck = item;
+      api.getCards(item._id).then(resp => {
+        console.log(resp.data);
+        this.cards = resp.data;
+      });
+    },
     toAddDeck() {
       let data = {
         name: this.addDeck.name
@@ -226,10 +233,14 @@ export default {
     },
     toUpdate() {
       api
-        .updateCard(this.selectedCard._id, this.selectedCard)
+        .updateCard(
+          this.currentDeck._id,
+          this.selectedCard._id,
+          this.selectedCard
+        )
         .then(resp => {
           this.cards[this.currentIndex] = Object.assign({}, this.selectedCard);
-          // this.$set(this.cards, this.currentIndex, this.selectedCard);
+          this.selectedCard = {};
           this.editing = false;
         })
         .catch(() => {
@@ -237,7 +248,7 @@ export default {
         });
     },
     toDel(card) {
-      api.removeCard(card._id).then(() => {
+      api.removeCard(this.currentDeck._id, card._id).then(() => {
         let idx = this.cards.findIndex(c => c._id === card._id);
         this.cards.splice(idx, 1);
       });
@@ -253,7 +264,7 @@ export default {
         front: this.selectedCard.front,
         back: this.selectedCard.back
       };
-      api.createCard(body).then(resp => {
+      api.createCard(this.currentDeck._id, body).then(resp => {
         this.cards.unshift(resp.data);
         this.selectedCard.front = "";
         this.selectedCard.back = "";

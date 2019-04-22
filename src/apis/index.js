@@ -11,23 +11,23 @@ const axios = Axios.create({
   baseURL,
 });
 
-function getCards() {
-  return axios.get('/cards');
+function getCards(id) {
+  return axios.get(`/decks/${id}/cards`);
 }
 function getRandomCards(size = 10) {
   return axios.get(`/random-cards?size=${size}`);
 }
 
-function createCard(body) {
-  return axios.post('/cards', body);
+function createCard(id, body) {
+  return axios.post(`/decks/${id}/cards`, body);
 }
 
-function updateCard(id, body) {
-  return axios.put(`/cards/${id}`, body);
+function updateCard(deckId, cardId, body) {
+  return axios.put(`/decks/${deckId}/cards/${cardId}`, body);
 }
 
-function removeCard(id) {
-  return axios.delete(`/cards/${id}`);
+function removeCard(deckId, cardId) {
+  return axios.delete(`/decks/${deckId}/cards/${cardId}`);
 }
 
 function removeCards(option) {
