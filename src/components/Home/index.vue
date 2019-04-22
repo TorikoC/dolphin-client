@@ -38,14 +38,26 @@
     </v-toolbar>
 
     <v-content>
-      <v-container fluid grid-list-lg>
-        <v-layout row>
-          <v-spacer></v-spacer>
-          <v-btn dark color="red" @click="toDeleteAll">delete all</v-btn>
-          <v-btn dark color="primary" @click="toReview">Review</v-btn>
-        </v-layout>
-        <v-layout row wrap>
-          <card @del="toDel(c)" @edit="toEdit(c, i)" v-for="(c,i) in cards" :card="c" :key="c.id"/>
+      <v-container fluid grid-list-lg fill-height>
+        <v-layout column>
+          <div class="home-header">
+            <h1>{{ currentDeck.name }}</h1>
+            <v-spacer></v-spacer>
+            <v-btn dark color="red" @click="toDeleteAll">delete all</v-btn>
+            <v-btn dark color="primary" @click="toReview">Review</v-btn>
+          </div>
+          <v-layout fill-height align-center justify-center v-if="loadingCards">
+            <v-progress-circular indeterminate color="primary"></v-progress-circular>
+          </v-layout>
+          <v-layout v-else row wrap>
+            <card
+              @del="toDel(c)"
+              @edit="toEdit(c, i)"
+              v-for="(c,i) in cards"
+              :card="c"
+              :key="c.id"
+            />
+          </v-layout>
         </v-layout>
       </v-container>
       <v-expansion-panel fluid class="expansion-panel" expand v-model="expand">
@@ -170,6 +182,7 @@ export default {
           ]
         }
       ],
+      loadingCards: false,
       drawer: true,
       expand: [false],
       cards: [],
@@ -187,14 +200,21 @@ export default {
   beforeMount() {
     api.getDecks().then(resp => {
       this.decks = resp.data;
+      if (this.decks.length > 0) {
+        this.toDeck(this.decks[0]);
+      }
     });
   },
   methods: {
     toDeck(item) {
+      if (this.loadingCards) {
+        return;
+      }
+      this.loadingCards = true;
       this.currentDeck = item;
       api.getCards(item._id).then(resp => {
-        console.log(resp.data);
         this.cards = resp.data;
+        this.loadingCards = false;
       });
     },
     toAddDeck() {
@@ -356,6 +376,11 @@ export default {
 
 .tree-node:hover .tree-node__icon {
   display: initial;
+}
+
+.home-header {
+  display: flex;
+  flex-direction: row;
 }
 </style>
 
