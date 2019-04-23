@@ -14,8 +14,8 @@ const axios = Axios.create({
 function getCards(id) {
   return axios.get(`/decks/${id}/cards`);
 }
-function getRandomCards(size = 10) {
-  return axios.get(`/random-cards?size=${size}`);
+function getRandomCards(id, size = 10) {
+  return axios.get(`/decks/${id}/random-cards?size=${size}`);
 }
 
 function createCard(id, body) {

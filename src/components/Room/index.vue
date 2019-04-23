@@ -17,9 +17,9 @@
     <div class="actions">
       <div v-if="hasAnswer" class="actions__buttons">
         <v-btn color="yellow" block @click.prevent="forget">forget</v-btn>
-        <v-btn color="primary" block @click.prevent="remember">remember</v-btn>
+        <v-btn color="blue" block @click.prevent="remember">remember</v-btn>
       </div>
-      <v-btn v-else block @click="showAnswer" color="success">show answer</v-btn>
+      <v-btn color="green" dark v-else block @click="showAnswer">show answer</v-btn>
     </div>
     <v-snackbar :top="true" :timeout="3000" v-model="snackbar">没有更多卡片了</v-snackbar>
   </div>
@@ -35,7 +35,7 @@ export default {
     }
   },
   beforeMount() {
-    api.getRandomCards().then(resp => {
+    api.getRandomCards(this.$route.params.id).then(resp => {
       this.cards = resp.data;
     });
   },
@@ -66,7 +66,7 @@ export default {
       if (body.counter) {
         body.counter.appear += 1;
         body.counter.forget += 1;
-        api.updateCard(body._id, body);
+        api.updateCard(this.cards[this.idx]._id, body._id, body);
       }
       this.next();
     },
@@ -75,13 +75,13 @@ export default {
       if (body.counter) {
         body.counter.appear += 1;
         body.counter.remember += 1;
-        api.updateCard(body._id, body);
+        api.updateCard(this.cards[this.idx]._id, body._id, body);
       }
       this.next();
     },
     next() {
       if (this.idx + 1 >= this.cards.length) {
-        api.getRandomCards().then(resp => {
+        api.getRandomCards(this.$route.params.id).then(resp => {
           this.cards = resp.data;
           this.idx = 0;
           document.querySelector(".back").style.display = "none";

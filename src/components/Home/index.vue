@@ -296,7 +296,7 @@ export default {
         this.snackbar.msg = "没有卡片可以复习- -!";
         return;
       }
-      this.$router.push("/room");
+      this.$router.push("/room/" + this.currentDeck._id);
     },
     toDeleteAll() {
       if (this.cards.length > 0) {
