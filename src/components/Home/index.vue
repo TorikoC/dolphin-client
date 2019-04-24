@@ -27,7 +27,7 @@
         </template>
       </v-treeview>
     </v-navigation-drawer>
-    <v-toolbar absolute app clipped-left>
+    <v-toolbar app clipped-left>
       <v-toolbar-side-icon @click="drawer = !drawer"></v-toolbar-side-icon>
       <span class="title ml-3 mr-5">
         DolphinApp&nbsp;
@@ -60,56 +60,55 @@
           </v-layout>
         </v-layout>
       </v-container>
-      <v-expansion-panel fluid class="expansion-panel" expand v-model="expand">
-        <v-expansion-panel-content>
-          <template v-slot:actions>
-            <v-icon>menu</v-icon>
-          </template>
-          <template v-slot:header>
-            <div class="expansion-panel__header"></div>
-          </template>
-          <v-form class="card-form" @submit.prevent="toAdd">
-            <v-container dark>
-              <v-layout>
-                <v-flex xs12 sm6>
-                  <v-textarea
-                    ref="front"
-                    name="front"
-                    label="front"
-                    v-model="selectedCard.front"
-                    outline
-                    append-outer-icon
-                    box
-                    required
-                  ></v-textarea>
-                </v-flex>
-                <v-flex xs12 sm6>
-                  <v-textarea
-                    ref="back"
-                    name="back"
-                    v-model="selectedCard.back"
-                    label="back"
-                    outline
-                    box
-                    required
-                  ></v-textarea>
-                </v-flex>
-              </v-layout>
-              <v-layout>
-                <v-flex xs12 v-if="editing">
-                  <v-btn color="warnning" block @click.prevent="toCancel">Cancel</v-btn>
-                  <v-btn color="success" block @click.prevent="toUpdate">Save</v-btn>
-                </v-flex>
-                <v-flex v-else>
-                  <v-btn color="success" block type="submit">Add</v-btn>
-                </v-flex>
-              </v-layout>
-            </v-container>
-          </v-form>
-        </v-expansion-panel-content>
-      </v-expansion-panel>
     </v-content>
-
+    <v-expansion-panel fluid class="expansion-panel" expand v-model="expand">
+      <v-expansion-panel-content>
+        <template v-slot:actions>
+          <v-icon>menu</v-icon>
+        </template>
+        <template v-slot:header>
+          <div class="expansion-panel__header"></div>
+        </template>
+        <v-form class="card-form" @submit.prevent="toAdd">
+          <v-container dark>
+            <v-layout>
+              <v-flex xs12 sm6>
+                <v-textarea
+                  ref="front"
+                  name="front"
+                  label="front"
+                  v-model="selectedCard.front"
+                  outline
+                  append-outer-icon
+                  box
+                  required
+                ></v-textarea>
+              </v-flex>
+              <v-flex xs12 sm6>
+                <v-textarea
+                  ref="back"
+                  name="back"
+                  v-model="selectedCard.back"
+                  label="back"
+                  outline
+                  box
+                  required
+                ></v-textarea>
+              </v-flex>
+            </v-layout>
+            <v-layout>
+              <v-flex xs12 v-if="editing">
+                <v-btn color="warnning" block @click.prevent="toCancel">Cancel</v-btn>
+                <v-btn color="success" block @click.prevent="toUpdate">Save</v-btn>
+              </v-flex>
+              <v-flex v-else>
+                <v-btn color="success" block type="submit">Add</v-btn>
+              </v-flex>
+            </v-layout>
+          </v-container>
+        </v-form>
+      </v-expansion-panel-content>
+    </v-expansion-panel>
     <v-snackbar :top="true" :timeout="3000" v-model="snackbar.show">{{ snackbar.msg }}</v-snackbar>
     <v-dialog v-model="addDeck.dialog" width="300">
       <v-card class="pa-3">
@@ -391,6 +390,7 @@ export default {
 .expansion-panel {
   position: fixed;
   bottom: 0;
+  z-index: 9999;
 }
 .v-expansion-panel__header__icon {
   width: 100%;
