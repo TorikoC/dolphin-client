@@ -66,7 +66,7 @@ export default {
       if (body.counter) {
         body.counter.appear += 1;
         body.counter.forget += 1;
-        api.updateCard(this.cards[this.idx]._id, body._id, body);
+        api.updateCard(this.$route.params.id, body._id, body);
       }
       this.next();
     },
@@ -75,7 +75,7 @@ export default {
       if (body.counter) {
         body.counter.appear += 1;
         body.counter.remember += 1;
-        api.updateCard(this.cards[this.idx]._id, body._id, body);
+        api.updateCard(this.$route.params.id, body._id, body);
       }
       this.next();
     },
