@@ -384,9 +384,6 @@ export default {
 </style>
 
 <style>
-#app {
-  font-family: "Roboto", "Microsoft Yahei", sans-serif;
-}
 .expansion-panel {
   position: fixed;
   bottom: 0;

@@ -4,6 +4,7 @@ import './plugins/vuetify';
 import App from './App.vue';
 
 import routes from './routes';
+import 'vuetify/dist/vuetify.min.css'; // Ensure you are using css-loader
 
 const router = new Router({
   mode: 'history',

@@ -1,28 +1,30 @@
 <template>
-  <div>
-    <div class="header">
-      <router-link to="/">
-        <v-icon class="header__home">exit_to_app</v-icon>
-      </router-link>
-    </div>
-    <v-container>
-      <v-layout>
-        <v-flex>
-          <p class="front">{{ card.front }}</p>
-          <div class="divisor"></div>
-          <p class="back">{{ card.back }}</p>
-        </v-flex>
-      </v-layout>
-    </v-container>
-    <div class="actions">
-      <div v-if="hasAnswer" class="actions__buttons">
-        <v-btn color="yellow" block @click.prevent="forget">forget</v-btn>
-        <v-btn color="blue" block @click.prevent="remember">remember</v-btn>
+  <v-app>
+    <v-content>
+      <div class="header">
+        <router-link to="/">
+          <v-icon class="header__home">exit_to_app</v-icon>
+        </router-link>
       </div>
-      <v-btn color="green" dark v-else block @click="showAnswer">show answer</v-btn>
-    </div>
-    <v-snackbar :top="true" :timeout="3000" v-model="snackbar">没有更多卡片了</v-snackbar>
-  </div>
+      <v-container>
+        <v-layout>
+          <v-flex>
+            <p class="front">{{ card.front }}</p>
+            <div class="divisor"></div>
+            <p class="back">{{ card.back }}</p>
+          </v-flex>
+        </v-layout>
+      </v-container>
+      <div class="actions">
+        <div v-if="hasAnswer" class="actions__buttons">
+          <v-btn color="yellow" block @click.prevent="forget">forget</v-btn>
+          <v-btn color="blue" block @click.prevent="remember">remember</v-btn>
+        </div>
+        <v-btn color="green" dark v-else block @click="showAnswer">show answer</v-btn>
+      </div>
+      <v-snackbar :top="true" :timeout="3000" v-model="snackbar">没有更多卡片了</v-snackbar>
+    </v-content>
+  </v-app>
 </template>
 
 <script>
