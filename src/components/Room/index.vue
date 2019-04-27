@@ -63,18 +63,16 @@ export default {
     },
     forget() {
       let body = Object.assign({}, this.cards[this.idx]);
-      if (body.counter) {
-        body.counter.appear += 1;
-        body.counter.forget += 1;
+      if (body.hasOwnProperty("score")) {
+        body.score = 0;
         api.updateCard(this.$route.params.id, body._id, body);
       }
       this.next();
     },
     remember() {
       let body = Object.assign({}, this.cards[this.idx]);
-      if (body.counter) {
-        body.counter.appear += 1;
-        body.counter.remember += 1;
+      if (body.hasOwnProperty("score")) {
+        body.score += 1;
         api.updateCard(this.$route.params.id, body._id, body);
       }
       this.next();
