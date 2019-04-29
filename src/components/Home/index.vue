@@ -36,7 +36,6 @@
       <v-text-field solo-inverted flat hide-details label="Search" prepend-inner-icon="search"></v-text-field>
       <v-spacer></v-spacer>
     </v-toolbar>
-
     <v-content>
       <v-container fluid grid-list-lg fill-height>
         <v-layout column>
@@ -45,6 +44,9 @@
             <v-spacer></v-spacer>
             <v-btn dark color="red" @click="toDeleteAll">delete all</v-btn>
             <v-btn dark color="primary" @click="toReview">Review</v-btn>
+          </div>
+          <div class="text-xs-right">
+            <v-pagination v-model="page" :length="total"></v-pagination>
           </div>
           <v-layout fill-height align-center justify-center v-if="loadingCards">
             <v-progress-circular indeterminate color="primary"></v-progress-circular>
@@ -193,8 +195,15 @@ export default {
       editing: false,
       deleteAllDialog: false,
       activeNode: "",
-      currentDeck: ""
+      currentDeck: "",
+      page: 1,
+      total: 1
     };
+  },
+  watch: {
+    page(value) {
+      this.toDeck(this.currentDeck);
+    }
   },
   beforeMount() {
     api.getDecks().then(resp => {
@@ -211,8 +220,9 @@ export default {
       }
       this.loadingCards = true;
       this.currentDeck = item;
-      api.getCards(item._id).then(resp => {
-        this.cards = resp.data;
+      api.getCards(item._id, { page: this.page }).then(resp => {
+        this.cards = resp.data.list;
+        this.total = resp.data.total;
         this.loadingCards = false;
       });
     },
