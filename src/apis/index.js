@@ -22,8 +22,8 @@ function createCard(body) {
   return axios.post(`/v2/cards/`, body);
 }
 
-function updateCard(deckId, cardId, body) {
-  return axios.put(`/decks/${deckId}/cards/${cardId}`, body);
+function updateCard(id, body) {
+  return axios.put(`/v2/cards/${id}`, body);
 }
 
 function removeCard(id) {

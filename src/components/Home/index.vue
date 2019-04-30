@@ -69,53 +69,93 @@
         </template>
         <v-form class="card-form" @submit.prevent="toAdd">
           <v-container dark>
-            <v-autocomplete
-              v-model="newCard.tags"
-              :items="tags"
-              multiple
-              item-text="name"
-              item-value="_id"
-            >
-              <template v-slot:selection="data">
-                <v-chip close @input="removeTag(data.item)">{{data.item.name}}</v-chip>
-              </template>
-            </v-autocomplete>
-            <v-layout>
-              <v-flex xs12 sm6>
-                <v-textarea
-                  ref="front"
-                  name="front"
-                  label="front"
-                  v-model="selectedCard.front"
-                  outline
-                  append-outer-icon
-                  box
-                  required
-                  no-resize
-                ></v-textarea>
-              </v-flex>
-              <v-flex xs12 sm6>
-                <v-textarea
-                  ref="back"
-                  name="back"
-                  v-model="selectedCard.back"
-                  label="back"
-                  outline
-                  no-resize
-                  box
-                  required
-                ></v-textarea>
-              </v-flex>
-            </v-layout>
-            <v-layout>
-              <v-flex xs12 v-if="editing">
+            <template v-if="editing">
+              <v-autocomplete
+                v-model="editCard.tags"
+                :items="tags"
+                multiple
+                item-text="name"
+                item-value="_id"
+              >
+                <template v-slot:selection="data">
+                  <v-chip close @input="removeTag2(data.item)">{{data.item.name}}</v-chip>
+                </template>
+              </v-autocomplete>
+              <v-layout>
+                <v-flex xs12 sm6>
+                  <v-textarea
+                    ref="front"
+                    name="front"
+                    label="front"
+                    v-model="editCard.front"
+                    outline
+                    append-outer-icon
+                    box
+                    required
+                    no-resize
+                  ></v-textarea>
+                </v-flex>
+                <v-flex xs12 sm6>
+                  <v-textarea
+                    ref="back"
+                    name="back"
+                    v-model="editCard.back"
+                    label="back"
+                    outline
+                    no-resize
+                    box
+                    required
+                  ></v-textarea>
+                </v-flex>
+              </v-layout>
+              <v-flex xs12>
                 <v-btn color="warnning" block @click.prevent="toCancel">Cancel</v-btn>
                 <v-btn color="success" block @click.prevent="toUpdate">Save</v-btn>
               </v-flex>
-              <v-flex v-else>
+            </template>
+            <template v-else>
+              <v-autocomplete
+                v-model="newCard.tags"
+                :items="tags"
+                multiple
+                item-text="name"
+                item-value="_id"
+              >
+                <template v-slot:selection="data">
+                  <v-chip close @input="removeTag(data.item)">{{data.item.name}}</v-chip>
+                </template>
+              </v-autocomplete>
+              <v-layout>
+                <v-flex xs12 sm6>
+                  <v-textarea
+                    ref="front"
+                    name="front"
+                    label="front"
+                    v-model="selectedCard.front"
+                    outline
+                    append-outer-icon
+                    box
+                    required
+                    no-resize
+                  ></v-textarea>
+                </v-flex>
+                <v-flex xs12 sm6>
+                  <v-textarea
+                    ref="back"
+                    name="back"
+                    v-model="selectedCard.back"
+                    label="back"
+                    outline
+                    no-resize
+                    box
+                    required
+                  ></v-textarea>
+                </v-flex>
+              </v-layout>
+              <v-layout>
                 <v-btn color="success" block type="submit">Add</v-btn>
-              </v-flex>
-            </v-layout>
+              </v-layout>
+            </template>
           </v-container>
         </v-form>
       </v-expansion-panel-content>
@@ -229,6 +269,12 @@ export default {
       },
       newCard: {
         tags: []
+      },
+      editCard: {
+        index: -1,
+        front: "",
+        back: "",
+        tags: []
       }
     };
   },
@@ -296,6 +342,10 @@ export default {
         this.loadingCards = false;
       });
     },
+    removeTag2(item) {
+      let index = this.editCard.tags.findIndex(n => n === item._id);
+      if (index !== -1) this.editCard.tags.splice(index, 1);
+    },
     removeTag(item) {
       let index = this.newCard.tags.findIndex(n => n === item._id);
       if (index !== -1) this.newCard.tags.splice(index, 1);
@@ -326,8 +376,11 @@ export default {
         });
     },
     toEdit(card, index) {
-      this.currentIndex = index;
-      this.selectedCard = Object.assign({}, card);
+      this.editCard.index = index;
+      this.editCard._id = card._id;
+      this.editCard.front = card.front;
+      this.editCard.back = card.back;
+      this.editCard.tags = card.tags;
       this.editing = true;
       this.$set(this.expand, 0, true);
     },
@@ -335,18 +388,24 @@ export default {
       this.editing = false;
     },
     toUpdate() {
+      let body = {
+        front: this.editCard.front,
+        back: this.editCard.back,
+        tags: this.editCard.tags
+      };
       api
-        .updateCard(
-          this.currentDeck._id,
-          this.selectedCard._id,
-          this.selectedCard
-        )
+        .updateCard(this.editCard._id, body)
         .then(resp => {
-          this.cards[this.currentIndex] = Object.assign({}, this.selectedCard);
-          this.selectedCard = {};
+          this.cards[this.editCard.index] = Object.assign({}, resp.data);
+          this.editCard = {
+            index: -1,
+            front: "",
+            back: "",
+            tags: []
+          };
           this.editing = false;
         })
-        .catch(() => {
+        .catch(err => {
           this.editing = false;
         });
     },
