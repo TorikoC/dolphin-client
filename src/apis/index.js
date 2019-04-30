@@ -26,8 +26,8 @@ function updateCard(deckId, cardId, body) {
   return axios.put(`/decks/${deckId}/cards/${cardId}`, body);
 }
 
-function removeCard(deckId, cardId) {
-  return axios.delete(`/decks/${deckId}/cards/${cardId}`);
+function removeCard(id) {
+  return axios.delete(`/v2/cards/${id}`);
 }
 
 function removeCards(option) {

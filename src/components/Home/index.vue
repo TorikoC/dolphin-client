@@ -351,7 +351,7 @@ export default {
         });
     },
     toDel(card) {
-      api.removeCard(this.currentDeck._id, card._id).then(() => {
+      api.removeCard(card._id).then(() => {
         let idx = this.cards.findIndex(c => c._id === card._id);
         this.cards.splice(idx, 1);
       });
