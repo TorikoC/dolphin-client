@@ -80,6 +80,7 @@
                   append-outer-icon
                   box
                   required
+                  no-resize
                 ></v-textarea>
               </v-flex>
               <v-flex xs12 sm6>
@@ -89,6 +90,7 @@
                   v-model="selectedCard.back"
                   label="back"
                   outline
+                  no-resize
                   box
                   required
                 ></v-textarea>
@@ -450,6 +452,9 @@ export default {
 </style>
 
 <style>
+.v-textarea textarea {
+  text-align: center;
+}
 .expansion-panel {
   position: fixed;
   bottom: 0;
