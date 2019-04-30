@@ -53,7 +53,7 @@
               @edit="toEdit(c, i)"
               v-for="(c,i) in cards"
               :card="c"
-              :key="c.id"
+              :key="c._id"
             />
           </v-layout>
         </v-layout>
@@ -69,6 +69,17 @@
         </template>
         <v-form class="card-form" @submit.prevent="toAdd">
           <v-container dark>
+            <v-autocomplete
+              v-model="newCard.tags"
+              :items="tags"
+              multiple
+              item-text="name"
+              item-value="_id"
+            >
+              <template v-slot:selection="data">
+                <v-chip close @input="removeTag(data.item)">{{data.item.name}}</v-chip>
+              </template>
+            </v-autocomplete>
             <v-layout>
               <v-flex xs12 sm6>
                 <v-textarea
@@ -215,6 +226,9 @@ export default {
       editTag: {
         index: -1,
         name: ""
+      },
+      newCard: {
+        tags: []
       }
     };
   },
@@ -224,11 +238,9 @@ export default {
     }
   },
   beforeMount() {
-    api.getDecks().then(resp => {
-      this.decks = resp.data;
-      if (this.decks.length > 0) {
-        this.toDeck(this.decks[0]);
-      }
+    api.getCards().then(resp => {
+      this.cards = resp.data.list;
+      this.total = resp.data.total;
     });
     api.getTags().then(resp => {
       this.tags = resp.data;
@@ -283,6 +295,10 @@ export default {
         this.total = resp.data.total;
         this.loadingCards = false;
       });
+    },
+    removeTag(item) {
+      let index = this.newCard.tags.findIndex(n => n === item._id);
+      if (index !== -1) this.newCard.tags.splice(index, 1);
     },
     toAddDeck() {
       let data = {
@@ -349,12 +365,14 @@ export default {
       }
       const body = {
         front: this.selectedCard.front,
-        back: this.selectedCard.back
+        back: this.selectedCard.back,
+        tags: this.newCard.tags
       };
-      api.createCard(this.currentDeck._id, body).then(resp => {
+      api.createCard(body).then(resp => {
         this.cards.unshift(resp.data);
         this.selectedCard.front = "";
         this.selectedCard.back = "";
+        this.newCard.tags = [];
       });
     },
     toReview() {

@@ -11,15 +11,15 @@ const axios = Axios.create({
   baseURL,
 });
 
-function getCards(id, params) {
-  return axios.get(`/decks/${id}/cards`, { params });
+function getCards(params) {
+  return axios.get(`/v2/cards`, { params });
 }
 function getRandomCards(id, size = 10) {
   return axios.get(`/decks/${id}/random-cards?size=${size}`);
 }
 
-function createCard(id, body) {
-  return axios.post(`/decks/${id}/cards`, body);
+function createCard(body) {
+  return axios.post(`/v2/cards/`, body);
 }
 
 function updateCard(deckId, cardId, body) {
