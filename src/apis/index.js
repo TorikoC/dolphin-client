@@ -46,6 +46,20 @@ function deleteDeck(id) {
   return axios.delete('/decks/' + id);
 }
 
+function createTag(body) {
+  return axios.post('/v2/tags', body)
+}
+
+function getTags() {
+  return axios.get('/v2/tags')
+}
+function deleteTag(id) {
+  return axios.delete(`/v2/tags/${id}`);
+}
+function updateTag(id, body) {
+  return axios.put(`/v2/tags/${id}`, body)
+}
+
 export default {
   getCards,
   getRandomCards,
@@ -58,4 +72,9 @@ export default {
   createDeck,
   updateDeck,
   deleteDeck,
+
+  getTags,
+  createTag,
+  updateTag,
+  deleteTag,
 };

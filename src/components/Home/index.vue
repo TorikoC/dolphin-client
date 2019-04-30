@@ -1,31 +1,27 @@
 <template>
   <v-app>
     <v-navigation-drawer v-model="drawer" fixed clipped class="grey lighten-4" app>
-      <v-btn @click="toCreateNode('')">Add Deck</v-btn>
-      <v-treeview
-        activatable
-        transition
-        :active.sync="active"
-        open-on-click
-        hoverable
-        :items="decks"
-      >
-        <template v-slot:label="{ item }">
-          <v-layout column v-if="editDeck.deck._id === item._id">
-            <v-text-field v-model="editDeck.name"></v-text-field>
-            <v-btn small @click="editDeck.deck = ''">Cancel</v-btn>
-            <v-btn small @click="toUpdateNode">Save</v-btn>
-          </v-layout>
-          <v-layout class="tree-node" v-else>
-            <v-flex @click="toDeck(item)">{{ item.name }}</v-flex>
-            <v-layout float>
-              <v-icon class="tree-node__icon" @click="toEditNode(item, $event)">edit</v-icon>
-              <v-icon class="tree-node__icon" @click="toDeleteNode(item)">delete</v-icon>
-              <v-icon class="tree-node__icon" @click="toCreateNode(item)">add</v-icon>
-            </v-layout>
-          </v-layout>
+      <v-btn @click="newTag.dialog = true">新建标签</v-btn>
+      <v-list>
+        <template v-for="(tag,index) in tags">
+          <v-list-tile :key="tag._id" @click="queryCards">
+            <template v-if="editTag.index === index">
+              <v-text-field v-model="editTag.name"></v-text-field>
+              <v-btn @click="editTag.index = -1">Cancel</v-btn>
+              <v-btn @click="saveNewTag(tag,index)" color="primary">Confirm</v-btn>
+            </template>
+            <template v-else>
+              <v-list-tile-content>{{ tag.name }}</v-list-tile-content>
+              <v-list-tile-action @click="toEditTag(tag, index)">
+                <v-icon>edit</v-icon>
+              </v-list-tile-action>
+              <v-list-tile-action>
+                <v-icon @click="toDeleteTag(tag, index)">delete</v-icon>
+              </v-list-tile-action>
+            </template>
+          </v-list-tile>
         </template>
-      </v-treeview>
+      </v-list>
     </v-navigation-drawer>
     <v-toolbar app clipped-left>
       <v-toolbar-side-icon @click="drawer = !drawer"></v-toolbar-side-icon>
@@ -112,6 +108,17 @@
       </v-expansion-panel-content>
     </v-expansion-panel>
     <v-snackbar :top="true" :timeout="3000" v-model="snackbar.show">{{ snackbar.msg }}</v-snackbar>
+    <v-dialog v-model="newTag.dialog" width="300">
+      <v-card class="pa-3">
+        <v-card-title>新建标签</v-card-title>
+        <v-text-field v-model="newTag.name"></v-text-field>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn @click="newTag.dialog = false">Cancel</v-btn>
+          <v-btn @click="toCreateTag" color="primary">Confirm</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <v-dialog v-model="addDeck.dialog" width="300">
       <v-card class="pa-3">
         <v-card-title>添加牌组</v-card-title>
@@ -146,6 +153,10 @@ export default {
   },
   data() {
     return {
+      newTag: {
+        dialog: false,
+        name: ""
+      },
       snackbar: {
         show: false,
         msg: "没有卡片可以复习"
@@ -197,7 +208,12 @@ export default {
       activeNode: "",
       currentDeck: "",
       page: 1,
-      total: 1
+      total: 1,
+      tags: [],
+      editTag: {
+        index: -1,
+        name: ""
+      }
     };
   },
   watch: {
@@ -212,8 +228,48 @@ export default {
         this.toDeck(this.decks[0]);
       }
     });
+    api.getTags().then(resp => {
+      this.tags = resp.data;
+    });
   },
   methods: {
+    queryCards() {},
+    toDeleteTag(tag, index) {
+      api.deleteTag(tag._id).then(resp => {
+        this.tags.splice(index, 1);
+      });
+    },
+    saveNewTag(tag, index) {
+      let body = {
+        name: this.editTag.name
+      };
+      api.updateTag(tag._id, body).then(resp => {
+        this.tags[index].name = resp.data.name;
+        this.editTag.index = -1;
+      });
+    },
+    toEditTag(tag, index) {
+      this.editTag.index = index;
+      this.editTag.name = tag.name;
+    },
+    toCreateTag() {
+      if (!this.newTag.name) return;
+      if (!this.newTag.name.trim()) return;
+      let body = {
+        name: this.newTag.name
+      };
+      api
+        .createTag(body)
+        .then(resp => {
+          this.tags.push(resp.data);
+          this.newTag.name = "";
+          this.newTag.dialog = false;
+        })
+        .catch(err => {
+          this.newTag.name = "";
+          this.newTag.dialog = false;
+        });
+    },
     toDeck(item) {
       if (this.loadingCards) {
         return;
