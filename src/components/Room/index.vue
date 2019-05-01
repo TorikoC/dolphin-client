@@ -37,8 +37,9 @@ export default {
     }
   },
   beforeMount() {
-    api.getRandomCards(this.$route.params.id).then(resp => {
-      this.cards = resp.data;
+    api.getCards({ sort: "score|asc" }).then(resp => {
+      this.cards = resp.data.list;
+      this.idx = 0;
     });
   },
   data() {
@@ -67,7 +68,7 @@ export default {
       let body = Object.assign({}, this.cards[this.idx]);
       if (body.hasOwnProperty("score")) {
         body.score = 0;
-        api.updateCard(this.$route.params.id, body._id, body);
+        api.updateCard(body._id, body);
       }
       this.next();
     },
@@ -75,17 +76,17 @@ export default {
       let body = Object.assign({}, this.cards[this.idx]);
       if (body.hasOwnProperty("score")) {
         body.score += 1;
-        api.updateCard(this.$route.params.id, body._id, body);
+        api.updateCard(body._id, body);
       }
       this.next();
     },
     next() {
       if (this.idx + 1 >= this.cards.length) {
-        api.getRandomCards(this.$route.params.id).then(resp => {
-          this.cards = resp.data;
-          this.idx = 0;
+        api.getCards({ sort: "score|asc" }).then(resp => {
           document.querySelector(".back").style.display = "none";
           this.hasAnswer = false;
+          this.cards = resp.data.list;
+          this.idx = 0;
         });
       } else {
         this.idx += 1;
