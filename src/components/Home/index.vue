@@ -285,7 +285,18 @@ export default {
   },
   watch: {
     page(value) {
-      this.toDeck(this.currentDeck);
+      let tag = this.tags.find(tag => tag.name === this.currentTag);
+      let params = {
+        poll: 1,
+        page: value
+      };
+      if (tag) {
+        params.tags = tag._id;
+      }
+      api.getCards(params).then(resp => {
+        this.cards = resp.data.list;
+        this.total = resp.data.total;
+      });
     }
   },
   beforeMount() {
