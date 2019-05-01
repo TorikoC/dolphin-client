@@ -280,7 +280,7 @@ export default {
         back: "",
         tags: []
       },
-      currentTag: {}
+      currentTag: "All"
     };
   },
   watch: {
@@ -289,7 +289,7 @@ export default {
     }
   },
   beforeMount() {
-    api.getCards().then(resp => {
+    api.getCards({ poll: 1 }).then(resp => {
       this.cards = resp.data.list;
       this.total = resp.data.total;
     });
@@ -300,14 +300,14 @@ export default {
   methods: {
     queryAllCards() {
       this.currentTag = "All";
-      api.getCards().then(resp => {
+      api.getCards({ poll: 1 }).then(resp => {
         this.cards = resp.data.list;
         this.total = resp.data.total;
       });
     },
     queryCards(tag) {
       this.currentTag = tag.name;
-      api.getCards({ tags: tag._id }).then(resp => {
+      api.getCards({ poll: 1, tags: tag._id }).then(resp => {
         this.cards = resp.data.list;
         this.total = resp.data.total;
       });

@@ -16,7 +16,17 @@
           </v-list-tile>
         </v-list>
       </v-menu>
+
       <v-card-text>{{ card.front }}</v-card-text>
+      <div class="card__tags">
+        <v-chip
+          label
+          color="pink"
+          text-color="white"
+          v-for="tag in card.tags"
+          :key="tag._id"
+        >{{ tag.name }}</v-chip>
+      </div>
     </v-card>
     <v-dialog v-model="dialog" max-width="300">
       <v-card>
@@ -77,6 +87,11 @@ export default {
   top: 0;
 }
 
+.card .card__tags {
+  position: absolute;
+  bottom: 0;
+}
+
 .card .card__actions {
   display: none;
 }
@@ -86,7 +101,6 @@ export default {
 }
 
 .card .v-card__text {
-  font-family: 'Microsoft Yahei';
   height: 100%;
   display: flex;
   flex-direction: row;
