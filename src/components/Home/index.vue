@@ -4,19 +4,19 @@
       <v-btn @click="newTag.dialog = true">新建标签</v-btn>
       <v-list>
         <template v-for="(tag,index) in tags">
-          <v-list-tile :key="tag._id" @click="queryCards">
+          <v-list-tile :key="tag._id" @click="queryCards(tag)">
             <template v-if="editTag.index === index">
               <v-text-field v-model="editTag.name"></v-text-field>
-              <v-btn @click="editTag.index = -1">Cancel</v-btn>
-              <v-btn @click="saveNewTag(tag,index)" color="primary">Confirm</v-btn>
+              <v-btn @click.stop="editTag.index = -1">Cancel</v-btn>
+              <v-btn @click.stop="saveNewTag(tag,index)" color="primary">Confirm</v-btn>
             </template>
             <template v-else>
               <v-list-tile-content>{{ tag.name }}</v-list-tile-content>
-              <v-list-tile-action @click="toEditTag(tag, index)">
+              <v-list-tile-action @click.stop="toEditTag(tag, index)">
                 <v-icon>edit</v-icon>
               </v-list-tile-action>
               <v-list-tile-action>
-                <v-icon @click="toDeleteTag(tag, index)">delete</v-icon>
+                <v-icon @click.stop="toDeleteTag(tag, index)">delete</v-icon>
               </v-list-tile-action>
             </template>
           </v-list-tile>
@@ -36,7 +36,7 @@
       <v-container fluid grid-list-lg fill-height>
         <v-layout column>
           <div class="home-header">
-            <h1>{{ currentDeck.name }}</h1>
+            <h1>{{ currentTag.name }}</h1>
             <v-spacer></v-spacer>
             <v-btn dark color="red" @click="toDeleteAll">delete all</v-btn>
             <v-btn dark color="primary" @click="toReview">Review</v-btn>
@@ -46,6 +46,9 @@
           </div>
           <v-layout fill-height align-center justify-center v-if="loadingCards">
             <v-progress-circular indeterminate color="primary"></v-progress-circular>
+          </v-layout>
+          <v-layout fill-height align-center justify-center v-else-if="cards.length === 0">
+            <p>no cards found - - !</p>
           </v-layout>
           <v-layout v-else row wrap>
             <card
@@ -275,7 +278,8 @@ export default {
         front: "",
         back: "",
         tags: []
-      }
+      },
+      currentTag: {}
     };
   },
   watch: {
@@ -293,7 +297,13 @@ export default {
     });
   },
   methods: {
-    queryCards() {},
+    queryCards(tag) {
+      this.currentTag = tag;
+      api.getCards({ tags: tag._id }).then(resp => {
+        this.cards = resp.data.list;
+        this.total = resp.data.total;
+      });
+    },
     toDeleteTag(tag, index) {
       api.deleteTag(tag._id).then(resp => {
         this.tags.splice(index, 1);
