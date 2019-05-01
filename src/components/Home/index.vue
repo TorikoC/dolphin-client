@@ -3,6 +3,7 @@
     <v-navigation-drawer v-model="drawer" fixed clipped class="grey lighten-4" app>
       <v-btn @click="newTag.dialog = true">新建标签</v-btn>
       <v-list>
+        <v-list-tile @click="queryAllCards">All Cards</v-list-tile>
         <template v-for="(tag,index) in tags">
           <v-list-tile :key="tag._id" @click="queryCards(tag)">
             <template v-if="editTag.index === index">
@@ -36,7 +37,7 @@
       <v-container fluid grid-list-lg fill-height>
         <v-layout column>
           <div class="home-header">
-            <h1>{{ currentTag.name }}</h1>
+            <h1>{{ currentTag}}</h1>
             <v-spacer></v-spacer>
             <v-btn dark color="red" @click="toDeleteAll">delete all</v-btn>
             <v-btn dark color="primary" @click="toReview">Review</v-btn>
@@ -297,8 +298,15 @@ export default {
     });
   },
   methods: {
+    queryAllCards() {
+      this.currentTag = "All";
+      api.getCards().then(resp => {
+        this.cards = resp.data.list;
+        this.total = resp.data.total;
+      });
+    },
     queryCards(tag) {
-      this.currentTag = tag;
+      this.currentTag = tag.name;
       api.getCards({ tags: tag._id }).then(resp => {
         this.cards = resp.data.list;
         this.total = resp.data.total;
